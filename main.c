@@ -98,6 +98,10 @@ char *split(char *str)
         }
         else
         {
+            if (index > 1 && buffer == str[index - 1])
+            {
+                return (NULL);
+            }
             buffer = str[index];
         }
         index++;
