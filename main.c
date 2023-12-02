@@ -6,7 +6,7 @@
 /*   By: luntranc <luntranc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:57:21 by luntranc          #+#    #+#             */
-/*   Updated: 2023/12/01 23:03:16 by luntranc         ###   ########.fr       */
+/*   Updated: 2023/12/02 20:28:18 by luntranc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ char *split(char *str)
         ft_putstr("Error: no hay espacios vacios\n");
         return (NULL);
     }
-    ret = malloc(len * sizeof(char) + 2);
+    ret = malloc(len * sizeof(char) + 2); // "1 3 2" 2 "   \0" "132"
     if (!ret)
     {
         ft_putstr("Error: error al alocar memoria\n");
@@ -194,18 +194,131 @@ void print_matrix(int **mat)
     }
 }
 
+int *array_gen(int first, int last)
+{
+    int *ret;
+    int index;
+    int writeable;
+    int iter;
+    int changes;
+
+    ret = malloc(6 * sizeof(int));
+    index = 1;
+    writeable = 0;
+    iter = 1;
+    changes = 0;
+    if (!ret)
+    {
+        return (0);
+    }
+    if ((first + last) != 5 && (first < 0 && last < 0))
+    {
+        ft_putstr("Error: Combinacion invalida");
+        return (0);
+    }
+    
+    while(index < 5)
+    {
+        if ( index > 1 && ret[index - 1] > writeable)
+        {
+            iter = 1;
+            while (iter < 5 && changes)
+            {
+                if (iter == 1)
+                    changes = 0;
+                if (iter == 5)
+                    iter = 1;
+                if (ret[iter] == writeable)
+                {
+                    writeable--;
+                    changes++;
+                }
+                iter++;
+            }
+            ret[index] = writeable;
+            if (writeable == 1)
+            {
+                writeable++;
+            }
+            else
+            writeable--;
+        }
+        if (index > 1 && ret[index - 1] < writeable)
+        {
+            iter = 1;
+            while (iter < 5 && changes)
+            {
+                if (iter == 1)
+                    changes = 0;
+                if (iter == 5)
+                    iter = 1;
+                if (ret[iter] == writeable)
+                {
+                    writeable++;
+                    changes++;
+                }
+                iter++;
+            }
+            ret[index] = writeable;
+            if (writeable == 4)
+            {
+                writeable--;
+            }
+            else
+            writeable++;
+        }
+        if (first == 4 && index == 1)
+        {
+            ret[index] = 1;
+            writeable = 2;
+        }
+        if (first == 3 && index == 1)
+        {
+            ret[index] = 2;
+            writeable = 3;
+        }
+        if (first == 2 && index == 1)
+        {
+            ret[index] = 3;
+            writeable = 4;
+        }
+        if (first == 1 && index == 1)
+        {
+            ret[index] = 4;
+            writeable = 3;
+        }
+        index++;
+    }
+    ret[0] = first;
+    ret[5] = last;
+    return ret;
+}
+
+int **algoritmo(int **mat)
+{
+    int y;
+
+    y = 1;
+    while(y < 5)
+    {
+        mat[y] = array_gen(mat[y][0], mat[y][5]);
+        y++;
+    }
+    return mat;
+}
+
 int main(int argc, char *argv[])
 {
     char *a;
     int **mat;
 
-    if (argc < 2)
+    /*if (argc < 2)
     {
         ft_putstr("Error: No hay suficientes argumentos\n");
         return(1);
-    }
+    }*/
     
-    a = split(argv[1]);
+    a = split("4 3 2 1 1 2 2 2 4 3 2 1 1 2 2 2");
 
     if (!a)
     {
@@ -224,5 +337,6 @@ int main(int argc, char *argv[])
         ft_putstr("Error: error al alocar memoria\n");
         return (1);
     }
+    mat = algoritmo(mat);
     print_matrix(mat);
 }
