@@ -6,12 +6,13 @@
 /*   By: luntranc <luntranc@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/12/01 20:57:21 by luntranc          #+#    #+#             */
-/*   Updated: 2023/12/02 20:28:18 by luntranc         ###   ########.fr       */
+/*   Updated: 2023/12/03 17:07:04 by luntranc         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <unistd.h>
 #include <stdlib.h>
+
 
 int ft_strlen(char *str)
 {
@@ -113,84 +114,76 @@ char *split(char *str)
 int **create_int_matrix(char *str)
 {
     int **mat;
+    int len;
     int index;
     int x;
     int y;
-    
+    int str_index;
+    int max;
+
+    len = ft_strlen(str);
+    mat = malloc((int)(len / 4) * sizeof(int *) + 1);
     index = 0;
-    x = 0;
-    y = 0;
-    mat = malloc(6 * sizeof(int *));
-    if (!mat)
+    while (index <= len / 4)
     {
-        return (0);
-    }
-    while (index < 6)
-    {
-        mat[index] = malloc(6 * sizeof(int));
-        if (!mat[index])
-            return (0);
+        mat[index] = malloc(4 * sizeof(int));
         index++;
     }
-    index = 0;
-    while (x < 6 && y < 6)
+    x = 0;
+    y = 0;
+    str_index = 0;
+    max = 4;
+    while (y < len / 4 -1 || str_index < ft_strlen(str))
     {
-        if (x == 0 || x == 5)
-            mat[y][x] = 0;
-        else
+        while (x < max)
         {
-            mat[y][x] = str[index] - '0';
-            index++;
+            if (str_index < 8)
+            {
+                if (str_index < 4)
+                {
+                    mat[0][x] = str[str_index] - '0';
+                }
+                else
+                {
+                    mat[3][x] = str[str_index] - '0';
+                }
+            }
+            else
+            {
+                if (str_index == 8)
+                {
+                    y--;
+                }
+                mat[y][x] = str[str_index] - '0';
+            }
+            x++;
+            str_index++;
         }
-        x++;
-        if (x == 6)
-        {
-            y += 5;
-            x = 0;
-        }
-    }
-    y = 1;
-    while (x <= 5)
-    {
-        if (x == 0 || x == 5)
-        {
-            mat[y][x] = str[index] - '0';
-            index++;
-        }
-        else
-            mat[y][x] = 0;
         y++;
-        if (y == 5)
-        {
-            x ++;
-            y = 1;
-        }
-    }   
+        x = 0;
+    }
     return mat;
 }
 
-void print_matrix(int **mat)
+void print_matrix(int **mat, int col, int row)
 {
     int x;
     int y;
-
+    
     x = 0;
     y = 0;
-    while (y < 6)
+
+    while(y < row)
     {
-        if ((y == 0 || y == 5) && (x == 0 || x == 5))
-            ft_putchar(' ');
-        else
-            ft_putchar(mat[y][x] + '0');
-        x++;
-        if (x == 6)
+        while (x < col)
         {
-            ft_putchar('\n');
-            y++;
-            x = 0;
-        }
-        else
+            ft_putchar(mat[y][x] + '0');
             ft_putchar(' ');
+            x++;
+        }
+        y++;
+        x = 0;
+        ft_putchar('\n');
     }
 }
 
@@ -307,18 +300,32 @@ int **algoritmo(int **mat)
     return mat;
 }
 
+void mat_malloc(int ***mat, int rows, int col)
+{
+    int index;
+
+    index = 0;
+    *mat = malloc(rows * sizeof(int*));
+    while (index < rows)
+    {
+        (*mat)[index] = malloc(col * sizeof(int));
+        index++;
+    }
+}
+
 int main(int argc, char *argv[])
 {
     char *a;
-    int **mat;
+    int **input_mat;
+    int **out_mat;
 
-    /*if (argc < 2)
+    if (argc < 2)
     {
         ft_putstr("Error: No hay suficientes argumentos\n");
         return(1);
-    }*/
+    }
     
-    a = split("4 3 2 1 1 2 2 2 4 3 2 1 1 2 2 2");
+    a = split(argv[1]);
 
     if (!a)
     {
@@ -330,13 +337,14 @@ int main(int argc, char *argv[])
         free(a);
         return (1);
     }
-    mat = create_int_matrix(a);
+    input_mat = create_int_matrix(a);
     free(a);
-    if (!mat)
+    if (!input_mat)
     {
         ft_putstr("Error: error al alocar memoria\n");
         return (1);
     }
-    mat = algoritmo(mat);
-    print_matrix(mat);
+    print_matrix(input_mat, 4, 4);
+    mat_malloc(&out_mat, 4, 4);
+    print_matrix(out_mat, 4, 4);
 }
